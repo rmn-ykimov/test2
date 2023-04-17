@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
+from page_object.login_page import LoginPage
 from configuration import URL, EMAIL, PASSWORD
 
 
@@ -17,25 +18,19 @@ def driver():
 @pytest.fixture()
 def login(driver):
 
-    wait = WebDriverWait(driver, 10)
-
     driver.get(URL)
 
-    cookies_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="CybotCookiebotDialogBodyButtonDecline"]')))
-    cookies_button.click()
+    login_page = LoginPage(driver)
 
-    login_field = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="app"]/div/div/div[1]/div[1]/form/div/div[1]/div/input')))
-    login_field.send_keys(EMAIL)
+    login_page.click_cookies_button()
 
-    password_field = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="app"]/div/div/div[1]/div[1]/form/div/div[2]/div/input')))
-    password_field.send_keys(PASSWORD)
+    login_page.enter_email(EMAIL)
 
-    button = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, 'sv8lcon')))
-    button.click()
+    login_page.enter_password(PASSWORD)
 
+    login_page.click_login_button()
 
-    wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="app"]/div/div/div[2]/div[1]/nav/div/div[2]/button')))
-    assert driver.current_url == 'https://portal.servers.com/dashboard', 'User was not redirected to the dashboard'
+    login_page.moving_to_dashboard(driver)
 
     return driver
 
